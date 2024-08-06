@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Shade Defender</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Swatch Out</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,8 +15,9 @@
             background-color: #f0f0f0;
         }
         #game-container {
-            width: 800px;
-            height: 600px;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 4 / 3;
             border: 2px solid #333;
             position: relative;
             overflow: hidden;
@@ -54,7 +55,7 @@
             position: absolute;
             bottom: 10px;
             left: 10px;
-            width: 780px;
+            width: 97.5%;
             height: 20px;
             background-color: #ddd;
         }
@@ -78,10 +79,11 @@
             color: white;
         }
         #start-button, #restart-button, #continue-button, #restart-button-fail {
-            font-size: 24px;
-            padding: 10px 20px;
+            font-size: 20px;
+            padding: 15px 30px;
             cursor: pointer;
             margin-top: 20px;
+            min-width: 150px;
         }
         #color-comparison, #fail-color-comparison {
             position: relative;
@@ -101,6 +103,17 @@
         #correct-color, #fail-correct-color {
             clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
         }
+        @media (max-width: 800px) {
+            #game-container {
+                aspect-ratio: 3 / 4;
+            }
+            .color-circle {
+                width: 15vw;
+                height: 15vw;
+                max-width: 80px;
+                max-height: 80px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -112,7 +125,7 @@
         <div id="game-area"></div>
         <div id="timer"><div id="timer-fill"></div></div>
         <div id="start-screen">
-            <h1>Color Shade Defender</h1>
+            <h1>Swatch Out</h1>
             <button id="start-button">Start Game</button>
         </div>
         <div id="fail-screen" style="display: none;">
@@ -129,29 +142,20 @@
     <script>
         // Game Configuration
         const CONFIG = {
-            // Color difference - Hue
-            initialHueRange: 80,  // Initial range of hue difference for incorrect colors
-            hueRangeDecrease: 2,  // How much the hue range decreases per level
-            minHueRange: 5,       // Minimum hue range (maximum difficulty)
-
-            // Color difference - Saturation
-            initialSaturation: 50,  // Initial saturation value
-            initialSaturationRange: 50,  // Initial range of saturation difference
-            saturationRangeDecrease: 1,  // How much the saturation range decreases per level
-            minSaturationRange: 5,  // Minimum saturation range (maximum difficulty)
-
-            // Number of circles
-            initialIncorrectCircles: 2,  // Number of incorrect circles at start
-            circlesIncreaseInterval: 5,  // Levels between increasing the number of circles
-
-            // Timer
-            initialTime: 5000,    // Initial time per round in milliseconds
-            timeDecrease: 100,    // How much time decreases per level (in ms)
-            minTime: 2000,        // Minimum time per round (in ms)
-
-            // Scoring
-            baseScore: 10,        // Base score for correct answer
-            scoreLevelMultiplier: 1,  // How much the score increases per level
+            initialHueRange: 80,
+            hueRangeDecrease: 2,
+            minHueRange: 5,
+            initialSaturation: 50,
+            initialSaturationRange: 50,
+            saturationRangeDecrease: 1,
+            minSaturationRange: 5,
+            initialIncorrectCircles: 2,
+            circlesIncreaseInterval: 5,
+            initialTime: 5000,
+            timeDecrease: 100,
+            minTime: 2000,
+            baseScore: 10,
+            scoreLevelMultiplier: 1,
         };
 
         const gameArea = document.getElementById('game-area');
@@ -192,7 +196,7 @@
             score = 0;
             level = 1;
             lives = 3;
-            gameArea.style.pointerEvents = 'auto';  // Ensure game area is interactive
+            gameArea.style.pointerEvents = 'auto';
             updateScore();
             updateLevel();
             updateLives();
@@ -215,6 +219,7 @@
             targetColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
             targetColorDiv.style.backgroundColor = targetColor;
         }
+
         function hslToRgb(h, s, l) {
             h /= 360;
             s /= 100;
@@ -265,14 +270,12 @@
             const circles = [];
             const targetColorValues = [baseHue, baseSaturation, 50];
 
-            // Create the correct color circle
             circles.push(createCircle(baseHue, baseSaturation));
 
-            // Create the incorrect color circles
             for (let i = 0; i < incorrectCircles; i++) {
                 let hue, saturation, color;
                 let attempts = 0;
-                const maxAttempts = 100;  // Prevent infinite loop
+                const maxAttempts = 100;
                 
                 do {
                     hue = (baseHue + Math.random() * hueRange * 2 - hueRange + 360) % 360;
@@ -284,13 +287,13 @@
                         console.warn("Couldn't generate a sufficiently different color");
                         break;
                     }
-                } while (colorDistance(color, targetColorValues) < 30);  // Adjust this threshold as needed
+                } while (colorDistance(color, targetColorValues) < 30);
 
                 circles.push(createCircle(hue, saturation));
             }
 
-            // Position circles without overlapping
             positionCircles(circles);
+            adjustGameLayout();
         }
 
         function createCircle(hue, saturation) {
@@ -301,16 +304,21 @@
             circle.style.backgroundColor = color;
             
             circle.addEventListener('click', () => handleCircleClick(color));
+            circle.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleCircleClick(color);
+            }, { passive: false });
+            
             gameArea.appendChild(circle);
 
             return circle;
         }
 
         function positionCircles(circles) {
-            const circleSize = 80;
-            const topMargin = gameArea.clientHeight * 0.1; // 10% from the top
-            const availableWidth = gameArea.clientWidth - circleSize;
-            const availableHeight = gameArea.clientHeight - topMargin - circleSize;
+            const containerWidth = gameArea.clientWidth;
+            const containerHeight = gameArea.clientHeight;
+            const topMargin = containerHeight * 0.1;
+            const circleSize = Math.min(80, containerWidth * 0.15, containerHeight * 0.15);
 
             for (let i = 0; i < circles.length; i++) {
                 let overlap;
@@ -318,14 +326,13 @@
                 let x, y;
 
                 do {
-                    x = Math.random() * availableWidth;
-                    y = Math.random() * availableHeight + topMargin;
+                    x = Math.random() * (containerWidth - circleSize);
+                    y = Math.random() * (containerHeight - circleSize - topMargin) + topMargin;
                     overlap = false;
 
-                    // Check for overlap with previously placed circles
                     for (let j = 0; j < i; j++) {
-                        const otherX = parseInt(circles[j].style.left);
-                        const otherY = parseInt(circles[j].style.top);
+                        const otherX = parseFloat(circles[j].style.left);
+                        const otherY = parseFloat(circles[j].style.top);
                         const distance = Math.sqrt((x - otherX) ** 2 + (y - otherY) ** 2);
 
                         if (distance < circleSize) {
@@ -343,11 +350,13 @@
 
                 circles[i].style.left = `${x}px`;
                 circles[i].style.top = `${y}px`;
+                circles[i].style.width = `${circleSize}px`;
+                circles[i].style.height = `${circleSize}px`;
             }
         }
 
         function handleCircleClick(clickedColor) {
-            clearInterval(timerInterval);  // Stop the timer immediately
+            clearInterval(timerInterval);
             lastClickedColor = clickedColor;
             if (clickedColor === targetColor) {
                 score += CONFIG.baseScore * level * CONFIG.scoreLevelMultiplier;
@@ -369,7 +378,7 @@
         }
 
         function startTimer() {
-            clearInterval(timerInterval);  // Clear any existing interval
+            clearInterval(timerInterval);
             let timeLeft = Math.max(CONFIG.minTime, CONFIG.initialTime - (level - 1) * CONFIG.timeDecrease);
             timerFill.style.width = '100%';
 
@@ -401,68 +410,109 @@
         }
 
         function showTimeOutScreen() {
-            clearInterval(timerInterval);  // Stop the timer
-            gameArea.style.pointerEvents = 'none';  // Disable interactions with the game area
+            clearInterval(timerInterval);
+            gameArea.style.pointerEvents = 'none';
 
             failMessage.textContent = "Time's out!";
-            document.getElementById('fail-color-comparison').style.display = 'none';  // Hide color comparison
-            document.getElementById('color-comparison-text').style.display = 'none';  // Hide color comparison text
-            
+            document.getElementById('fail-color-comparison').style.display = 'none';
+            document.getElementById('color-comparison-text').style.display = 'none';
             lives--;
-            updateLives();
+        updateLives();
 
-            if (lives > 0) {
-                failMessage.textContent += ` You have ${lives} ${lives === 1 ? 'life' : 'lives'} left.`;
-                continueButton.style.display = 'block';
-                restartButtonFail.style.display = 'none';
-            } else {
-                failMessage.textContent += ` Game Over! Your score: ${score}`;
-                continueButton.style.display = 'none';
-                restartButtonFail.style.display = 'block';
-            }
-
-            failScreen.style.display = 'flex';
-        }
-
-        function showFailScreen(failType) {
-            clearInterval(timerInterval);  // Stop the timer
-            gameArea.style.pointerEvents = 'none';  // Disable interactions with the game area
-
-            failClickedColor.style.backgroundColor = lastClickedColor;
-            failCorrectColor.style.backgroundColor = targetColor;
-            document.getElementById('fail-color-comparison').style.display = 'block';
-            document.getElementById('color-comparison-text').style.display = 'block';
-
-            switch(failType) {
-                case 'fail_1':
-                    failMessage.textContent = `Incorrect! You have 2 lives left.`;
-                    break;
-                case 'fail_2':
-                    failMessage.textContent = `Incorrect! You have 1 life left.`;
-                    break;
-                case 'fail_3':
-                    failMessage.textContent = `Game Over! Your score: ${score}`;
-                    continueButton.style.display = 'none';
-                    restartButtonFail.style.display = 'block';
-                    break;
-            }
-
-            failScreen.style.display = 'flex';
-        }
-
-        function continueGame() {
-            hideFailScreen();
-            gameArea.style.pointerEvents = 'auto';  // Re-enable interactions with the game area
-            nextRound();
-        }
-
-        function hideFailScreen() {
-            failScreen.style.display = 'none';
+        if (lives > 0) {
+            failMessage.textContent += ` You have ${lives} ${lives === 1 ? 'life' : 'lives'} left.`;
             continueButton.style.display = 'block';
             restartButtonFail.style.display = 'none';
-            document.getElementById('fail-color-comparison').style.display = 'block';
-            document.getElementById('color-comparison-text').style.display = 'block';
+        } else {
+            failMessage.textContent += ` Game Over! Your score: ${score}`;
+            continueButton.style.display = 'none';
+            restartButtonFail.style.display = 'block';
         }
+
+        failScreen.style.display = 'flex';
+    }
+
+    function showFailScreen(failType) {
+        clearInterval(timerInterval);
+        gameArea.style.pointerEvents = 'none';
+
+        failClickedColor.style.backgroundColor = lastClickedColor;
+        failCorrectColor.style.backgroundColor = targetColor;
+        document.getElementById('fail-color-comparison').style.display = 'block';
+        document.getElementById('color-comparison-text').style.display = 'block';
+
+        switch(failType) {
+            case 'fail_1':
+                failMessage.textContent = `Incorrect! You have 2 lives left.`;
+                break;
+            case 'fail_2':
+                failMessage.textContent = `Incorrect! You have 1 life left.`;
+                break;
+            case 'fail_3':
+                failMessage.textContent = `Game Over! Your score: ${score}`;
+                continueButton.style.display = 'none';
+                restartButtonFail.style.display = 'block';
+                break;
+        }
+
+        failScreen.style.display = 'flex';
+    }
+
+    function continueGame() {
+        hideFailScreen();
+        gameArea.style.pointerEvents = 'auto';
+        nextRound();
+    }
+
+    function hideFailScreen() {
+        failScreen.style.display = 'none';
+        continueButton.style.display = 'block';
+        restartButtonFail.style.display = 'none';
+        document.getElementById('fail-color-comparison').style.display = 'block';
+        document.getElementById('color-comparison-text').style.display = 'block';
+    }
+
+    function adjustGameLayout() {
+        const container = document.getElementById('game-container');
+        const gameArea = document.getElementById('game-area');
+        const aspectRatio = window.innerWidth <= 800 ? 3 / 4 : 4 / 3;
+        
+        if (window.innerWidth / window.innerHeight > aspectRatio) {
+            container.style.height = '90vh';
+            container.style.width = `${90 * aspectRatio}vh`;
+        } else {
+            container.style.width = '90vw';
+            container.style.height = `${90 / aspectRatio}vw`;
+        }
+
+        if (gameArea.children.length > 0) {
+            positionCircles(Array.from(gameArea.children));
+        }
+    }
+
+    function adjustConfigForScreenSize() {
+        if (window.innerWidth < 600) {
+            CONFIG.initialIncorrectCircles = 1;
+            CONFIG.circlesIncreaseInterval = 7;
+        } else {
+            CONFIG.initialIncorrectCircles = 2;
+            CONFIG.circlesIncreaseInterval = 5;
+        }
+    }
+
+    window.addEventListener('load', () => {
+        adjustGameLayout();
+        adjustConfigForScreenSize();
+    });
+    window.addEventListener('resize', () => {
+        adjustGameLayout();
+        adjustConfigForScreenSize();
+    });
+
+    document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+
     </script>
 </body>
 </html>
