@@ -732,6 +732,27 @@
             }
         }
 
+        // Add touch-based scroll for mobile devices
+        let touchStartY;
+
+        document.getElementById('letter-content').addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+        }, false);
+
+document.getElementById('letter-content').addEventListener('touchmove', function(e) {
+    let touchY = e.touches[0].clientY;
+    let scrollTop = this.scrollTop;
+    let scrollHeight = this.scrollHeight;
+    let offsetHeight = this.offsetHeight;
+
+    // If at the top of the content and trying to scroll down, or
+    // at the bottom of the content and trying to scroll up, prevent default
+    if ((scrollTop === 0 && touchY > touchStartY) ||
+        (scrollTop + offsetHeight >= scrollHeight && touchY < touchStartY)) {
+        e.preventDefault();
+    }
+}, false);
+
         window.addEventListener('load', () => {
             adjustGameLayout();
             adjustConfigForScreenSize();
