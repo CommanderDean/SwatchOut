@@ -299,19 +299,21 @@
         });
 
         function controlMusic(action) {
-            switch(action) {
-                case 'play':
-                    if (!isMusicMuted) backgroundMusic.play();
-                    break;
-                case 'pause':
-                    backgroundMusic.pause();
-                    break;
-                case 'stop':
-                    backgroundMusic.pause();
-                    backgroundMusic.currentTime = 0;
-                    break;
+    switch(action) {
+        case 'play':
+            if (!isMusicMuted) {
+                backgroundMusic.play().catch(e => console.error("Error playing music:", e));
             }
-        }
+            break;
+        case 'pause':
+            backgroundMusic.pause();
+            break;
+        case 'stop':
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+            break;
+    }
+}
 
         function playRandomPopSound() {
             if (!isSfxMuted) {
