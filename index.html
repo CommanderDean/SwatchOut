@@ -743,22 +743,27 @@ body {
         }
 
         function adjustGameLayout() {
-            const container = document.getElementById('game-container');
-            const gameArea = document.getElementById('game-area');
-            const aspectRatio = window.innerWidth <= 800 ? 3 / 4 : 4 / 3;
-            
-            if (window.innerWidth / window.innerHeight > aspectRatio) {
-                container.style.height = '90vh';
-                container.style.width = `${90 * aspectRatio}vh`;
-            } else {
-                container.style.width = '90vw';
-                container.style.height = `${90 / aspectRatio}vw`;
-            }
-
-            if (gameArea.children.length > 0) {
-                positionCircles(Array.from(gameArea.children));
-            }
+    const container = document.getElementById('game-container');
+    const gameArea = document.getElementById('game-area');
+    
+    if (window.innerWidth <= 800) {
+        container.style.width = '95vw';
+        container.style.height = '95vh';
+    } else {
+        const aspectRatio = 4 / 3;
+        if (window.innerWidth / window.innerHeight > aspectRatio) {
+            container.style.height = '90vh';
+            container.style.width = `${90 * aspectRatio}vh`;
+        } else {
+            container.style.width = '90vw';
+            container.style.height = `${90 / aspectRatio}vw`;
         }
+    }
+
+    if (gameArea.children.length > 0) {
+        positionCircles(Array.from(gameArea.children));
+    }
+}
 
         function adjustConfigForScreenSize() {
             if (window.innerWidth < 600) {
