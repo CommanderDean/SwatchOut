@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Swatch Out</title>
     <style>
-    html, body {
+   html, body {
     height: 100%;
     margin: 0;
     padding: 0;
@@ -113,9 +113,11 @@ body {
     background-color: rgb(250, 242, 233);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     color: black;
+    padding: 0px;
+    box-sizing: border-box;
 }
 
 #loading-screen, #end-screen, #fail-screen {
@@ -138,6 +140,11 @@ body {
     cursor: pointer;
     margin-top: 20px;
     min-width: 150px;
+}
+
+#close-letter {
+    margin-top: 0;
+    margin-bottom: 20px;
 }
 
 #color-comparison, #fail-color-comparison {
@@ -191,54 +198,12 @@ body {
     text-align: left;
     padding: 20px;
     overflow-y: auto;
-    max-height: 80vh;
+    max-height: 70vh;
     font-size: 16px;
+    margin-bottom: 20px;
 }
 
-#intro-letter {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-}
-
-@media (max-width: 800px) {
-    #game-container {
-        width: 95vw;
-        height: 95vh;
-        aspect-ratio: auto;
-        max-width: none;
-    }
-
-    .color-circle {
-        width: 15vw;
-        height: 15vw;
-        max-width: 80px;
-        max-height: 80px;
-    }
-
-    #score, #level, #lives {
-    position: absolute;
-    font-size: 18px;
-}
-
-#score { 
-    top: 10px; 
-    left: 10px; 
-}
-
-#lives { 
-    top: 40px;
-    left: 10px; 
-}
-
-#level { 
-    top: 10px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-}
-
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
     #game-container {
         width: 95vw;
         height: 95vh;
@@ -254,7 +219,7 @@ body {
     }
 
     #score, #lives, #level { 
-        font-size: 16px; /* Slightly smaller font size */
+        font-size: 16px;
     }
 
     #score { 
@@ -263,33 +228,64 @@ body {
     }
 
     #lives { 
-        top: 35px; /* Moved down to avoid overlap */
+        top: 35px;
         left: 10px;
     }
 
     #level {
         top: 10px;
-        right: 10px; /* Moved to the right side */
-        left: auto; /* Reset left positioning */
-        transform: none; /* Reset transform */
+        right: 10px;
+        left: auto;
+        transform: none;
     }
 
     #target-color {
-        top: 70px; /* Moved down to avoid overlap with score and lives */
+        top: 70px;
+    }
+
+    #letter-content {
+        font-size: 16px;
+        padding: 15px;
+        line-height: 1.4;
+    }
+
+    #letter-content h2 {
+        font-size: 18px;
+    }
+
+    #close-letter {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    #letter-content {
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    #letter-content h2 {
+        font-size: 16px;
+    }
+
+    #close-letter {
+        font-size: 16px;
+        padding: 8px 16px;
     }
 }
 
 @media (max-width: 400px) {
     #score, #lives, #level { 
-        font-size: 14px; /* Even smaller font size for very narrow screens */
+        font-size: 16px;
     }
 
     #lives { 
-        top: 30px; /* Slightly closer to score */
+        top: 30px;
     }
 
     #target-color {
-        top: 60px; /* Adjusted for smaller text */
+        top: 60px;
     }
 }
 
@@ -848,8 +844,8 @@ document.getElementById('letter-content').addEventListener('touchmove', function
             // Set the letter content
             const letterContent = `
                 <h2>Dear Ed,</h2>
-                <p>A chromatic catastrophe is upon us! A bizarre movement has risen: the Colour Spectrum Denialists. They argue that only eight colours exist: red, blue, yellow, green, orange, purple, black, and white. They seek to impose their view on the world by de-saturating every vivid hue they find.</p>
-                <p>You are the world's only hope. You can put an end to Dr Grey and his colour denying lackeys, by using my colour matching device the Swatch 9000. Each level the colors get harder and harder to match. This won't prove the Colour Spectrum Denialists wrong but it will make them very angry.</p>
+                <p>A chromatic catastrophe is upon us! A bizarre movement has risen: the Colour Spectrum Denialists. They argue that only seven colours exist, including black and white. They seek to impose their view on the world by de-saturating every vivid hue they find.</p>
+                <p>You can save the world by using my patented colour matching device, the Swatch 9000. Each level the colors get harder and harder to match. This won't prove the Colour Spectrum Denialists wrong but it will make them very angry.</p>
                 <p>I believe in you and your extraordinary gift for hue discernment.</p>
                 <p>Sincerely,</p>
                 <p>Professor Chroma</p>
@@ -870,4 +866,5 @@ document.getElementById('letter-content').addEventListener('touchmove', function
     </script>
 </body>
 </html>
+
 
