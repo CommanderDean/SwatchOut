@@ -274,12 +274,14 @@
         startButton.addEventListener('click', () => {
             startScreen.style.display = 'none';
             startGame();
+            controlMusic('play');
         });
 
         continueButton.addEventListener('click', continueGame);
         restartButtonFail.addEventListener('click', () => {
             hideFailScreen();
             startGame();
+            controlMusic('play');
         });
 
         muteMusicButton.addEventListener('click', () => {
@@ -327,7 +329,6 @@
             updateScore();
             updateLevel();
             updateLives();
-            controlMusic('play');
             nextRound();
         }
 
