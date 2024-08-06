@@ -30,7 +30,7 @@
         }
         #score { left: 10px; }
         #level { left: 50%; transform: translateX(-50%); }
-        #lives { right: 10px; }
+        #lives { right: 120px; }
         #target-color {
             position: absolute;
             top: 40px;
@@ -103,6 +103,20 @@
         #correct-color, #fail-correct-color {
             clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
         }
+        #mute-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .mute-button {
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
         @media (max-width: 800px) {
             #game-container {
                 aspect-ratio: 3 / 4;
@@ -138,6 +152,21 @@
             <button id="continue-button">Continue</button>
             <button id="restart-button-fail" style="display: none;">Start Again</button>
         </div>
+        <audio id="background-music" loop>
+            <source src="sounds/song1.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <audio id="pop1" src="sounds/pop1.mp3"></audio>
+        <audio id="pop2" src="sounds/pop2.mp3"></audio>
+        <audio id="pop3" src="sounds/pop3.mp3"></audio>
+        <audio id="pop4" src="sounds/pop4.mp3"></audio>
+        <audio id="pop5" src="sounds/pop5.mp3"></audio>
+        <audio id="pop-wrong" src="sounds/pop-wrong.mp3"></audio>
+        <audio id="ding" src="sounds/ding.mp3"></audio>
+        <div id="mute-buttons">
+            <button id="mute-music" class="mute-button">🎵</button>
+            <button id="mute-sfx" class="mute-button">🔊</button>
+        </div>
     </div>
     <script>
         // Game Configuration
@@ -172,6 +201,19 @@
         const failCorrectColor = document.getElementById('fail-correct-color');
         const continueButton = document.getElementById('continue-button');
         const restartButtonFail = document.getElementById('restart-button-fail');
+        const backgroundMusic = document.getElementById('background-music');
+        const muteMusicButton = document.getElementById('mute-music');
+        const muteSfxButton = document.getElementById('mute-sfx');
+
+        const popSounds = [
+            document.getElementById('pop1'),
+            document.getElementById('pop2'),
+            document.getElementById('pop3'),
+            document.getElementById('pop4'),
+            document.getElementById('pop5')
+        ];
+        const popWrongSound = document.getElementById('pop-wrong');
+        const dingSound = document.getElementById('ding');
 
         let score = 0;
         let level = 1;
@@ -180,6 +222,8 @@
         let gameLoop;
         let timerInterval;
         let lastClickedColor = '';
+        let isMusicMuted = false;
+        let isSfxMuted = false;
 
         startButton.addEventListener('click', () => {
             startScreen.style.display = 'none';
@@ -192,6 +236,43 @@
             startGame();
         });
 
+        muteMusicButton.addEventListener('click', () => {
+            isMusicMuted = !isMusicMuted;
+            backgroundMusic.muted = isMusicMuted;
+            muteMusicButton.textContent = isMusicMuted ? '🔇' : '🎵';
+        });
+
+        muteSfxButton.addEventListener('click', () => {
+            isSfxMuted = !isSfxMuted;
+            popSounds.forEach(sound => sound.muted = isSfxMuted);
+            popWrongSound.muted = isSfxMuted;
+            dingSound.muted = isSfxMuted;
+            muteSfxButton.textContent = isSfxMuted ? '🔇' : '🔊';
+        });
+
+        function controlMusic(action) {
+            switch(action) {
+                case 'play':
+                    if (!isMusicMuted) backgroundMusic.play();
+                    break;
+                case 'pause':
+                    backgroundMusic.pause();
+                    break;
+                case 'stop':
+                    backgroundMusic.pause();
+                    backgroundMusic.currentTime = 0;
+                    break;
+            }
+        }
+
+        function playRandomPopSound() {
+            if (!isSfxMuted) {
+                const randomPop = popSounds[Math.floor(Math.random() * popSounds.length)];
+                randomPop.currentTime = 0;
+                randomPop.play();
+            }
+        }
+
         function startGame() {
             score = 0;
             level = 1;
@@ -200,6 +281,7 @@
             updateScore();
             updateLevel();
             updateLives();
+            controlMusic('play');
             nextRound();
         }
 
@@ -359,12 +441,17 @@
             clearInterval(timerInterval);
             lastClickedColor = clickedColor;
             if (clickedColor === targetColor) {
+                playRandomPopSound();
                 score += CONFIG.baseScore * level * CONFIG.scoreLevelMultiplier;
                 updateScore();
                 level++;
                 updateLevel();
                 nextRound();
             } else {
+                if (!isSfxMuted) {
+                    popWrongSound.currentTime = 0;
+                    popWrongSound.play();
+                }
                 lives--;
                 updateLives();
                 if (lives === 2) {
@@ -407,111 +494,126 @@
 
         function endGame() {
             showFailScreen('fail_3');
+            controlMusic('stop');
         }
 
         function showTimeOutScreen() {
             clearInterval(timerInterval);
             gameArea.style.pointerEvents = 'none';
+            controlMusic('pause');
+            if (!isSfxMuted) {
+                dingSound.currentTime = 0;
+                dingSound.play();
+            }
 
             failMessage.textContent = "Time's out!";
             document.getElementById('fail-color-comparison').style.display = 'none';
             document.getElementById('color-comparison-text').style.display = 'none';
+            
             lives--;
-        updateLives();
+            updateLives();
 
-        if (lives > 0) {
-            failMessage.textContent += ` You have ${lives} ${lives === 1 ? 'life' : 'lives'} left.`;
-            continueButton.style.display = 'block';
-            restartButtonFail.style.display = 'none';
-        } else {
-            failMessage.textContent += ` Game Over! Your score: ${score}`;
-            continueButton.style.display = 'none';
-            restartButtonFail.style.display = 'block';
-        }
-
-        failScreen.style.display = 'flex';
-    }
-
-    function showFailScreen(failType) {
-        clearInterval(timerInterval);
-        gameArea.style.pointerEvents = 'none';
-
-        failClickedColor.style.backgroundColor = lastClickedColor;
-        failCorrectColor.style.backgroundColor = targetColor;
-        document.getElementById('fail-color-comparison').style.display = 'block';
-        document.getElementById('color-comparison-text').style.display = 'block';
-
-        switch(failType) {
-            case 'fail_1':
-                failMessage.textContent = `Incorrect! You have 2 lives left.`;
-                break;
-            case 'fail_2':
-                failMessage.textContent = `Incorrect! You have 1 life left.`;
-                break;
-            case 'fail_3':
-                failMessage.textContent = `Game Over! Your score: ${score}`;
+            if (lives > 0) {
+                failMessage.textContent += ` You have ${lives} ${lives === 1 ? 'life' : 'lives'} left.`;
+                continueButton.style.display = 'block';
+                restartButtonFail.style.display = 'none';
+            } else {
+                failMessage.textContent += ` Game Over! Your score: ${score}`;
                 continueButton.style.display = 'none';
                 restartButtonFail.style.display = 'block';
-                break;
+            }
+
+            failScreen.style.display = 'flex';
         }
 
-        failScreen.style.display = 'flex';
-    }
+        function showFailScreen(failType) {
+            clearInterval(timerInterval);
+            gameArea.style.pointerEvents = 'none';
+            controlMusic('pause');
 
-    function continueGame() {
-        hideFailScreen();
-        gameArea.style.pointerEvents = 'auto';
-        nextRound();
-    }
+            failClickedColor.style.backgroundColor = lastClickedColor;
+            failCorrectColor.style.backgroundColor = targetColor;
+            document.getElementById('fail-color-comparison').style.display = 'block';
+            document.getElementById('color-comparison-text').style.display = 'block';
 
-    function hideFailScreen() {
-        failScreen.style.display = 'none';
-        continueButton.style.display = 'block';
-        restartButtonFail.style.display = 'none';
-        document.getElementById('fail-color-comparison').style.display = 'block';
-        document.getElementById('color-comparison-text').style.display = 'block';
-    }
+            switch(failType) {
+                case 'fail_1':
+                    failMessage.textContent = `Incorrect! You have 2 lives left.`;
+                    break;
+                case 'fail_2':
+                    failMessage.textContent = `Incorrect! You have 1 life left.`;
+                    break;
+                case 'fail_3':
+                    failMessage.textContent = `Game Over! Your score: ${score}`;
+                    continueButton.style.display = 'none';
+                    restartButtonFail.style.display = 'block';
+                    break;
+            }
 
-    function adjustGameLayout() {
-        const container = document.getElementById('game-container');
-        const gameArea = document.getElementById('game-area');
-        const aspectRatio = window.innerWidth <= 800 ? 3 / 4 : 4 / 3;
-        
-        if (window.innerWidth / window.innerHeight > aspectRatio) {
-            container.style.height = '90vh';
-            container.style.width = `${90 * aspectRatio}vh`;
-        } else {
-            container.style.width = '90vw';
-            container.style.height = `${90 / aspectRatio}vw`;
+            failScreen.style.display = 'flex';
         }
 
-        if (gameArea.children.length > 0) {
-            positionCircles(Array.from(gameArea.children));
+        function continueGame() {
+            hideFailScreen();
+            gameArea.style.pointerEvents = 'auto';
+            controlMusic('play');
+            nextRound();
         }
-    }
 
-    function adjustConfigForScreenSize() {
-        if (window.innerWidth < 600) {
-            CONFIG.initialIncorrectCircles = 1;
-            CONFIG.circlesIncreaseInterval = 7;
-        } else {
-            CONFIG.initialIncorrectCircles = 2;
-            CONFIG.circlesIncreaseInterval = 5;
+        function hideFailScreen() {
+            failScreen.style.display = 'none';
+            continueButton.style.display = 'block';
+            restartButtonFail.style.display = 'none';
+            document.getElementById('fail-color-comparison').style.display = 'block';
+            document.getElementById('color-comparison-text').style.display = 'block';
         }
-    }
 
-    window.addEventListener('load', () => {
-        adjustGameLayout();
-        adjustConfigForScreenSize();
-    });
-    window.addEventListener('resize', () => {
-        adjustGameLayout();
-        adjustConfigForScreenSize();
-    });
+        function adjustGameLayout() {
+            const container = document.getElementById('game-container');
+            const gameArea = document.getElementById('game-area');
+            const aspectRatio = window.innerWidth <= 800 ? 3 / 4 : 4 / 3;
+            
+            if (window.innerWidth / window.innerHeight > aspectRatio) {
+                container.style.height = '90vh';
+                container.style.width = `${90 * aspectRatio}vh`;
+            } else {
+                container.style.width = '90vw';
+                container.style.height = `${90 / aspectRatio}vw`;
+            }
 
-    document.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-    }, { passive: false });
+            if (gameArea.children.length > 0) {
+                positionCircles(Array.from(gameArea.children));
+            }
+        }
+
+        function adjustConfigForScreenSize() {
+            if (window.innerWidth < 600) {
+                CONFIG.initialIncorrectCircles = 1;
+                CONFIG.circlesIncreaseInterval = 7;
+            } else {
+                CONFIG.initialIncorrectCircles = 2;
+                CONFIG.circlesIncreaseInterval = 5;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            adjustGameLayout();
+            adjustConfigForScreenSize();
+            backgroundMusic.load();backgroundMusic.load();
+            backgroundMusic.volume = 0.5;  // Set volume to 50%
+            popSounds.forEach(sound => sound.load());
+            popWrongSound.load();
+            dingSound.load();
+        });
+
+        window.addEventListener('resize', () => {
+            adjustGameLayout();
+            adjustConfigForScreenSize();
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
 
     </script>
 </body>
