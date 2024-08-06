@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Swatch Out</title>
     <style>
-     body {
+    html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
     background-color: #f0f0f0;
 }
+
 #game-container {
     width: 100%;
     max-width: 800px;
@@ -23,23 +29,28 @@
     overflow: hidden;
     background-color: #fff;
 }
+
 #score, #level, #lives {
     position: absolute;
     font-size: 18px;
 }
+
 #score { 
     top: 10px; 
     left: 10px; 
 }
+
 #lives { 
     top: 40px;
     left: 10px; 
 }
+
 #level { 
     top: 10px; 
     left: 50%; 
     transform: translateX(-50%); 
 }
+
 #target-color {
     position: absolute;
     top: 40px;
@@ -49,10 +60,12 @@
     height: 50px;
     border: 2px solid #000;
 }
+
 #game-area {
     width: 100%;
     height: 100%;
 }
+
 .color-circle {
     width: 80px;
     height: 80px;
@@ -60,6 +73,7 @@
     position: absolute;
     cursor: pointer;
 }
+
 #timer {
     position: absolute;
     bottom: 10px;
@@ -68,6 +82,7 @@
     height: 20px;
     background-color: #ddd;
 }
+
 #timer-fill {
     height: 100%;
     width: 100%;
@@ -102,6 +117,7 @@
     align-items: center;
     color: white;
 }
+
 #start-button, #restart-button, #continue-button, #restart-button-fail, #close-letter {
     font-size: 20px;
     padding: 15px 30px;
@@ -109,24 +125,29 @@
     margin-top: 20px;
     min-width: 150px;
 }
+
 #color-comparison, #fail-color-comparison {
     position: relative;
     width: 100px;
     height: 100px;
     margin-top: 20px;
 }
+
 .comparison-circle {
     position: absolute;
     width: 100px;
     height: 100px;
     border-radius: 50%;
 }
+
 #clicked-color, #fail-clicked-color {
     clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
 }
+
 #correct-color, #fail-correct-color {
     clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
 }
+
 #mute-buttons {
     position: absolute;
     top: 10px;
@@ -134,6 +155,7 @@
     display: flex;
     gap: 10px;
 }
+
 .mute-button {
     font-size: 24px;
     background: none;
@@ -141,6 +163,7 @@
     cursor: pointer;
     padding: 5px;
 }
+
 #loading-progress {
     width: 80%;
     height: 20px;
@@ -155,7 +178,7 @@
     padding: 20px;
     overflow-y: auto;
     max-height: 80vh;
-    font-size: 16px; /* Default font size for larger screens */
+    font-size: 16px;
 }
 
 #intro-letter {
@@ -165,10 +188,37 @@
     height: 100%;
 }
 
-/* Media query for smaller screens */
+@media (max-width: 800px) {
+    #game-container {
+        width: 95vw;
+        height: 95vh;
+        aspect-ratio: auto;
+        max-width: none;
+    }
+
+    .color-circle {
+        width: 15vw;
+        height: 15vw;
+        max-width: 80px;
+        max-height: 80px;
+    }
+
+    #score, #lives { 
+        top: 2vh;
+    }
+
+    #level {
+        top: 2vh;
+    }
+
+    #target-color {
+        top: 8vh;
+    }
+}
+
 @media (max-width: 768px) {
     #letter-content {
-        font-size: 12px; /* Smaller font size for mobile devices */
+        font-size: 12px;
         padding: 15px;
         line-height: 1.4;
     }
@@ -183,10 +233,9 @@
     }
 }
 
-/* Even smaller screens */
 @media (max-width: 480px) {
     #letter-content {
-        font-size: 10px; /* Even smaller font size for very small devices */
+        font-size: 10px;
         padding: 10px;
     }
 
@@ -200,17 +249,6 @@
     }
 }
 
-@media (max-width: 800px) {
-    #game-container {
-        aspect-ratio: 9 / 16;
-    }
-    .color-circle {
-        width: 15vw;
-        height: 15vw;
-        max-width: 80px;
-        max-height: 80px;
-    }
-}
     </style>
 </head>
 <body>
