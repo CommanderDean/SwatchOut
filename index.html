@@ -25,12 +25,21 @@
         }
         #score, #level, #lives {
             position: absolute;
-            top: 10px;
             font-size: 18px;
         }
-        #score { left: 10px; }
-        #level { left: 50%; transform: translateX(-50%); }
-        #lives { right: 120px; }
+        #score { 
+            top: 10px; 
+            left: 10px; 
+        }
+        #lives { 
+            top: 40px;  /* Move the lives counter below the score */
+            left: 10px; 
+        }
+        #level { 
+            top: 10px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+        }
         #target-color {
             position: absolute;
             top: 40px;
@@ -65,7 +74,23 @@
             background-color: #4CAF50;
             transition: width 0.1s linear;
         }
-        #loading-screen, #start-screen, #end-screen, #fail-screen {
+        
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        
+        #loading-screen, #end-screen, #fail-screen {
             position: absolute;
             top: 0;
             left: 0;
@@ -138,8 +163,8 @@
 <body>
     <div id="game-container">
         <div id="score">Score: <span id="score-value">0</span></div>
+        <div id="lives">Lives: <span id="lives-value">3</span></div> <!-- Moved below score -->
         <div id="level">Level: <span id="level-value">1</span></div>
-        <div id="lives">Lives: <span id="lives-value">3</span></div>
         <div id="target-color"></div>
         <div id="game-area"></div>
         <div id="timer"><div id="timer-fill"></div></div>
@@ -148,7 +173,7 @@
             <progress id="loading-progress" value="0" max="100"></progress>
         </div>
         <div id="start-screen" style="display: none;">
-            <img src="images/swatchout_logo.png" alt="Swatch Out Logo" style="width: 70%; height: auto;" />
+            <img src="images/swatchout_logo.png" alt="Swatch Out Logo" style="width: 60%; height: auto;" />
             <button id="start-button">Start Game</button>
         </div>
         <div id="fail-screen" style="display: none;">
@@ -644,7 +669,7 @@
         window.addEventListener('load', () => {
             adjustGameLayout();
             adjustConfigForScreenSize();
-            backgroundMusic.volume = 0.5;  // Set volume to 50%
+            backgroundMusic.volume = 0.2;  // Set volume to 50%
         });
 
         window.addEventListener('resize', () => {
