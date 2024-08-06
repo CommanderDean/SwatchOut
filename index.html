@@ -90,13 +90,27 @@ body {
     transition: width 0.1s linear;
 }
 
-#start-screen, #intro-letter {
+#start-screen {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: black;
+}
+
+#intro-letter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(250, 242, 233);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -191,7 +205,7 @@ body {
 @media (max-width: 800px) {
     #game-container {
         width: 95vw;
-        height: 90vh;
+        height: 95vh;
         aspect-ratio: auto;
         max-width: none;
     }
@@ -203,49 +217,79 @@ body {
         max-height: 80px;
     }
 
-    #score, #lives { 
-        top: 2vh;
+    #score, #level, #lives {
+    position: absolute;
+    font-size: 18px;
+}
+
+#score { 
+    top: 10px; 
+    left: 10px; 
+}
+
+#lives { 
+    top: 40px;
+    left: 10px; 
+}
+
+#level { 
+    top: 10px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+}
+
+@media (max-width: 800px) {
+    #game-container {
+        width: 95vw;
+        height: 95vh;
+        aspect-ratio: auto;
+        max-width: none;
+    }
+
+    .color-circle {
+        width: 15vw;
+        height: 15vw;
+        max-width: 80px;
+        max-height: 80px;
+    }
+
+    #score, #lives, #level { 
+        font-size: 16px; /* Slightly smaller font size */
+    }
+
+    #score { 
+        top: 10px;
+        left: 10px;
+    }
+
+    #lives { 
+        top: 35px; /* Moved down to avoid overlap */
+        left: 10px;
     }
 
     #level {
-        top: 2vh;
+        top: 10px;
+        right: 10px; /* Moved to the right side */
+        left: auto; /* Reset left positioning */
+        transform: none; /* Reset transform */
     }
 
     #target-color {
-        top: 8vh;
+        top: 70px; /* Moved down to avoid overlap with score and lives */
     }
 }
 
-@media (max-width: 768px) {
-    #letter-content {
-        font-size: 16px;
-        padding: 15px;
-        line-height: 1.4;
+@media (max-width: 400px) {
+    #score, #lives, #level { 
+        font-size: 14px; /* Even smaller font size for very narrow screens */
     }
 
-    #letter-content h2 {
-        font-size: 18px;
+    #lives { 
+        top: 30px; /* Slightly closer to score */
     }
 
-    #close-letter {
-        font-size: 16px;
-        padding: 10px 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    #letter-content {
-        font-size: 14px;
-        padding: 10px;
-    }
-
-    #letter-content h2 {
-        font-size: 16px;
-    }
-
-    #close-letter {
-        font-size: 14px;
-        padding: 8px 16px;
+    #target-color {
+        top: 60px; /* Adjusted for smaller text */
     }
 }
 
